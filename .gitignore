@@ -10,6 +10,11 @@
 
 # production
 /build
+/dist
+
+# caches
+.cache
+.parcel-cache
 
 # misc
 .DS_Store
