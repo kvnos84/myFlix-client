@@ -1,23 +1,40 @@
-import React from 'react';
-import './App.css'; // Your styles, if any
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Router components
-import MainView from './components/MainView/MainView'; // Import your MainView component
-import MovieView from './components/MovieView/MovieView'; // Import your MovieView component
+import React, { useState, useEffect } from 'react';
+import logo from './logo.svg';
+import './App.css'; 
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import MainView from './components/MainView/MainView';
+import MovieView from './components/MovieView/MovieView';
 
 function App() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    fetch('https://movie-api-1kah.onrender.com/movies')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch movies');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setMovies(data);
+      })
+      .catch(error => {
+        console.error('Error fetching movies:', error);
+      });
+  }, []);
+
   return (
     <Router>
       <div className="App">
-        {/* Adding a simple heading to confirm the app is rendering */}
-        <h1>Welcome to MyFlix!</h1>
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <h1>Welcome to MyFlix!</h1>
+        </header>
 
-        {/* Define the routes for different views */}
         <Routes>
-          {/* Route for MainView */}
-          <Route path="/" element={<MainView />} />
-          
-          {/* Route for MovieView with a dynamic title */}
-          <Route path="/movie/:title" element={<MovieView />} />
+          <Route path="/" element={<MainView movies={movies} />} />
+          <Route path="/movie/:title" element={<MovieView movies={movies} />} />
         </Routes>
       </div>
     </Router>

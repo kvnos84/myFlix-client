@@ -1,54 +1,28 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';  // Import useParams and useNavigate
+import { useParams, useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-const MovieView = () => {
-  const { title } = useParams();  // Extract the movie title from the URL
-  const navigate = useNavigate();  // Get the navigate function
+const MovieView = ({ movies }) => {
+  const { title } = useParams();
+  const navigate = useNavigate();
 
-  // Here, we would normally fetch movie data from state or an API, but for simplicity, let's assume you have the movie data locally.
-  const movies = [
-    {
-      title: 'The Shawshank Redemption',
-      description: 'Two imprisoned men bond over a number of years...',
-      genre: 'Drama',
-      director: 'Frank Darabont',
-      posterUrl: 'https://path-to-your-poster-image.jpg'  // Replace with a valid image URL
-    },
-    {
-      title: 'The Godfather',
-      description: 'The aging patriarch of an organized crime dynasty...',
-      genre: 'Crime',
-      director: 'Francis Ford Coppola',
-      posterUrl: 'https://path-to-your-poster-image.jpg'  // Replace with a valid image URL
-    },
-    {
-      title: 'The Dark Knight',
-      description: 'When the menace known as The Joker emerges from his mysterious past...',
-      genre: 'Action',
-      director: 'Christopher Nolan',
-      posterUrl: 'https://path-to-your-poster-image.jpg'  // Replace with a valid image URL
-    }
-  ];
+  // Find the movie from the movies prop
+  const movie = movies.find((movie) => movie.Title === title || movie.title === title);
 
-  // Find the movie based on the title from the URL
-  const movie = movies.find((movie) => movie.title === title);
-
-  // Navigate back to the main view
   const handleBackClick = () => {
-    navigate('/');  // Navigate to the root URL (MainView)
+    navigate('/');
   };
 
   return (
     <div className="movie-view">
       {movie ? (
         <>
-          <h1>{movie.title}</h1>
-          <img src={movie.posterUrl} alt={movie.title} />
-          <p>{movie.description}</p>
-          <h3>Genre: {movie.genre}</h3>
-          <h3>Director: {movie.director}</h3>
+          <h1>{movie.Title || movie.title}</h1>
+          <img src={movie.ImagePath || movie.posterUrl} alt={movie.Title || movie.title} />
+          <p>{movie.Description || movie.description}</p>
+          <h3>Genre: {(movie.Genre && movie.Genre.Name) || movie.genre}</h3>
+          <h3>Director: {(movie.Director && movie.Director.Name) || movie.director}</h3>
 
-          {/* Back Button */}
           <button onClick={handleBackClick}>Back to Movies</button>
         </>
       ) : (
@@ -56,6 +30,27 @@ const MovieView = () => {
       )}
     </div>
   );
+};
+
+MovieView.propTypes = {
+  movies: PropTypes.arrayOf(
+    PropTypes.shape({
+      Title: PropTypes.string,
+      title: PropTypes.string,
+      ImagePath: PropTypes.string,
+      posterUrl: PropTypes.string,
+      Description: PropTypes.string,
+      description: PropTypes.string,
+      Genre: PropTypes.shape({
+        Name: PropTypes.string,
+      }),
+      genre: PropTypes.string,
+      Director: PropTypes.shape({
+        Name: PropTypes.string,
+      }),
+      director: PropTypes.string,
+    })
+  ).isRequired,
 };
 
 export default MovieView;
