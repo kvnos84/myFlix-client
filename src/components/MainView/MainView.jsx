@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { Row, Col, Card, Button } from 'react-bootstrap'; // Added Button here
 
 import LoginView from '../LoginView/login-view.jsx';
 import SignupView from '../SignupView/signup-view.jsx';
@@ -11,7 +12,6 @@ const MainView = () => {
   const [showSignup, setShowSignup] = useState(false);
 
   useEffect(() => {
-    // Load token and user from localStorage on mount
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
@@ -19,7 +19,6 @@ const MainView = () => {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
 
-      // Fetch movies with token authorization
       fetch('https://your-api-url/movies', {
         headers: { Authorization: `Bearer ${storedToken}` },
       })
@@ -34,7 +33,6 @@ const MainView = () => {
         })
         .catch((error) => {
           console.error('Error fetching movies:', error);
-          // Optionally handle invalid token by logging out
           handleLogout();
         });
     }
@@ -53,9 +51,7 @@ const MainView = () => {
     return (
       <div>
         {showSignup ? (
-          <SignupView
-            onSignup={() => setShowSignup(false)} // switch back to login after signup
-          />
+          <SignupView onSignup={() => setShowSignup(false)} />
         ) : (
           <LoginView
             onLogin={(userData, userToken) => {
@@ -64,7 +60,6 @@ const MainView = () => {
               localStorage.setItem('token', userToken);
               localStorage.setItem('user', JSON.stringify(userData));
 
-              // Fetch movies after login
               fetch('https://your-api-url/movies', {
                 headers: { Authorization: `Bearer ${userToken}` },
               })
@@ -84,38 +79,48 @@ const MainView = () => {
           />
         )}
 
-        <button onClick={() => setShowSignup(!showSignup)} style={{ marginTop: '1rem' }}>
+        <Button
+          variant="secondary"
+          onClick={() => setShowSignup(!showSignup)}
+          className="mt-3"
+        >
           {showSignup ? 'Back to Login' : 'Sign Up'}
-        </button>
+        </Button>
       </div>
     );
   }
 
-  // When logged in, show movies and logout button
+  // Logged-in view with Bootstrap layout and components
   return (
-    <div>
-      <h1>Welcome to myFlix, {user.Username}!</h1>
+    <Row className="justify-content-center mt-4">
+      <Col md={8}>
+        <h1>Welcome to myFlix, {user.Username}!</h1>
 
-      <button onClick={handleLogout} style={{ marginBottom: '1rem' }}>
-        Logout
-      </button>
+        <Button
+          variant="primary"
+          onClick={handleLogout}
+          className="mb-3"
+        >
+          Logout
+        </Button>
 
-      <div>
-        {movies.length === 0 ? (
-          <p>Loading movies...</p>
-        ) : (
-          movies.map((movie) => (
-            <div
-              key={movie._id}
-              style={{ border: '1px solid #ccc', padding: '1rem', margin: '1rem 0' }}
-            >
-              <h2>{movie.Title || movie.title}</h2>
-              <p>{movie.Description || movie.description}</p>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+        <div>
+          {movies.length === 0 ? (
+            <p>Loading movies...</p>
+          ) : (
+            movies.map((movie) => (
+              <Card key={movie._id} className="mb-3 custom-card">
+                {movie.ImagePath && <Card.Img variant="top" src={movie.ImagePath} />}
+                <Card.Body>
+                  <Card.Title>{movie.Title || movie.title}</Card.Title>
+                  <Card.Text>{movie.Description || movie.description}</Card.Text>
+                </Card.Body>
+              </Card>
+            ))
+          )}
+        </div>
+      </Col>
+    </Row>
   );
 };
 
