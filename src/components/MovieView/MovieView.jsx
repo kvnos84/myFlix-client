@@ -1,17 +1,13 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
 
 const MovieView = ({ movies }) => {
-  const { title } = useParams();
-  const navigate = useNavigate();
+  const { movieId } = useParams();
 
-  // Find the movie from the movies prop
-  const movie = movies.find((movie) => movie.Title === title || movie.title === title);
-
-  const handleBackClick = () => {
-    navigate('/');
-  };
+  // Find the movie by _id
+  const movie = movies.find((movie) => movie._id === movieId);
 
   return (
     <div className="movie-view">
@@ -23,10 +19,14 @@ const MovieView = ({ movies }) => {
           <h3>Genre: {(movie.Genre && movie.Genre.Name) || movie.genre}</h3>
           <h3>Director: {(movie.Director && movie.Director.Name) || movie.director}</h3>
 
-          <button onClick={handleBackClick}>Back to Movies</button>
+          <Button variant="secondary">
+            <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Back to Movies
+            </Link>
+          </Button>
         </>
       ) : (
-        <p>Movie not found! Please check the movie title or go back to the main page.</p>
+        <p>Movie not found! Please check the movie ID or go back to the main page.</p>
       )}
     </div>
   );
@@ -35,6 +35,7 @@ const MovieView = ({ movies }) => {
 MovieView.propTypes = {
   movies: PropTypes.arrayOf(
     PropTypes.shape({
+      _id: PropTypes.string.isRequired,
       Title: PropTypes.string,
       title: PropTypes.string,
       ImagePath: PropTypes.string,

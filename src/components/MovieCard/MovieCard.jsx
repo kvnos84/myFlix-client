@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 const MovieCard = ({ movie }) => {
   return (
     <div className="movie-card">
-      <Link to={`/movie/${movie.Title || movie.title}`}>
+      <Link to={`/movies/${movie._id}`}>
         <img src={movie.ImagePath || movie.posterUrl} alt={movie.Title || movie.title} />
         <h2>{movie.Title || movie.title}</h2>
         <p>{movie.Genre?.Name || movie.genre}</p>
@@ -17,6 +17,7 @@ const MovieCard = ({ movie }) => {
 
 MovieCard.propTypes = {
   movie: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
     Title: PropTypes.string,
     title: PropTypes.string,
     ImagePath: PropTypes.string,

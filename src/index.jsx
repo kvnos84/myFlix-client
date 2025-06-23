@@ -1,10 +1,11 @@
 import { createRoot } from 'react-dom/client';
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // ✅ Bootstrap styles
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.scss';
-import App from './App';
-import { Container } from 'react-bootstrap'; // ✅ Import Container
-import MainView from './components/MainView/MainView'; // ✅ Adjust path if needed
+import App from './App'; // You can remove this import if not using App now
+import { Container } from 'react-bootstrap';
+import MainView from './components/MainView/MainView';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 const MyFlixApplication = () => {
   return (
@@ -14,9 +15,11 @@ const MyFlixApplication = () => {
   );
 };
 
-// Find root and render app
 const container = document.querySelector('#root');
 const root = createRoot(container);
 
-// You can switch this to MyFlixApplication if you're not using App yet
-root.render(<App />);
+root.render(
+  <Router>
+    <MyFlixApplication />
+  </Router>
+);
