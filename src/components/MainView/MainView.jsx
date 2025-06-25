@@ -1,24 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Row, Col, Card, Button, Container } from 'react-bootstrap';
-
 import { NavigationBar } from '../NavigationBar/NavigationBar';
 import LoginView from '../LoginView/LoginView';
 import SignupView from '../SignupView/SignupView';
-import MovieView from '../MovieView/movie-view.jsx';
+import MovieView from '../MovieView/MovieView';
 import ProfileView from '../ProfileView/ProfileView';
-import MovieCard from '../movie-card/movie-card';
+import MovieCard from '../MovieCard/MovieCard';
+import { Container, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
 
 const MoviesList = ({ movies, user, handleLogout, onUserUpdate }) => {
-  if (movies.length === 0) {
-    return (
-      <Container className="mt-5">
-        <p>Loading movies...</p>
-      </Container>
-    );
-  }
-
   return (
     <Container className="mt-5">
       <Row className="mb-4">
@@ -34,11 +24,7 @@ const MoviesList = ({ movies, user, handleLogout, onUserUpdate }) => {
           <Col key={movie._id} xs={12} sm={6} md={4} lg={3} className="mb-4">
             <Card className="h-100 shadow-sm">
               <Card.Body className="p-2">
-                <MovieCard
-                  movie={movie}
-                  user={user}
-                  onUserUpdate={onUserUpdate}
-                />
+                <MovieCard movie={movie} user={user} onUserUpdate={onUserUpdate} />
               </Card.Body>
             </Card>
           </Col>
@@ -48,19 +34,14 @@ const MoviesList = ({ movies, user, handleLogout, onUserUpdate }) => {
   );
 };
 
-MoviesList.propTypes = {
-  movies: PropTypes.array.isRequired,
-  user: PropTypes.object.isRequired,
-  handleLogout: PropTypes.func.isRequired,
-  onUserUpdate: PropTypes.func.isRequired,
-};
-
 const MainView = () => {
   const [user, setUser] = useState(null);
   const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchMovies = (token) => {
-    fetch('https://your-api-url/movies', {
+    setLoading(true);
+    fetch('https://movie-api-1kah.onrender.com/movies', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((response) => {
@@ -71,7 +52,8 @@ const MainView = () => {
       .catch((error) => {
         console.error('Error fetching movies:', error);
         handleLogout();
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -97,66 +79,55 @@ const MainView = () => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/login" element={
+          <LoginView
+            onLogin={(userData, userToken) => {
+              setUser(userData);
+              localStorage.setItem('token', userToken);
+              localStorage.setItem('user', JSON.stringify(userData));
+              fetchMovies(userToken);
+            }}
+          />
+        } />
+        <Route path="/signup" element={<SignupView />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  if (loading || movies.length === 0) {
+    return (
+      <>
+        <NavigationBar user={user} onLogout={handleLogout} />
+        <Container className="text-center mt-5">
+          <Spinner animation="border" />
+          <p>Loading movies...</p>
+        </Container>
+      </>
+    );
+  }
+
   return (
     <>
       <NavigationBar user={user} onLogout={handleLogout} />
-
       <Routes>
-        <Route
-          path="/"
-          element={
-            user ? (
-              <MoviesList
-                movies={movies}
-                user={user}
-                handleLogout={handleLogout}
-                onUserUpdate={handleUserUpdate}
-              />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-
-        <Route
-          path="/login"
-          element={
-            <LoginView
-              onLogin={(userData, userToken) => {
-                setUser(userData);
-                localStorage.setItem('token', userToken);
-                localStorage.setItem('user', JSON.stringify(userData));
-                fetchMovies(userToken);
-              }}
-            />
-          }
-        />
-
-        <Route path="/signup" element={<SignupView />} />
-
-        <Route
-          path="/movies/:movieId"
-          element={
-            <MovieView
-              movies={movies}
-              user={user}
-              onUserUpdate={handleUserUpdate}
-            />
-          }
-        />
-
-        <Route
-          path="/profile"
-          element={
-            <ProfileView
-              user={user}
-              movies={movies}
-              onUserUpdate={handleUserUpdate}
-              onLogout={handleLogout}
-            />
-          }
-        />
-
+        <Route path="/" element={
+          <MoviesList
+            movies={movies}
+            user={user}
+            handleLogout={handleLogout}
+            onUserUpdate={handleUserUpdate}
+          />
+        } />
+        <Route path="/movies/:movieId" element={
+          <MovieView movies={movies} user={user} onUserUpdate={handleUserUpdate} />
+        } />
+        <Route path="/profile" element={
+          <ProfileView user={user} movies={movies} onUserUpdate={handleUserUpdate} onLogout={handleLogout} />
+        } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

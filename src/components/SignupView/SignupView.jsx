@@ -9,7 +9,6 @@ const SignupView = () => {
     email: '',
     birthday: ''
   });
-
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -67,9 +66,7 @@ const SignupView = () => {
     <Container className="mt-4">
       <Card className="p-4 shadow-sm">
         <h2 className="mb-4">Sign Up</h2>
-
         {message && <Alert variant={message.startsWith('Signup successful') ? 'success' : 'danger'}>{message}</Alert>}
-
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="formUsername" className="mb-3">
             <Form.Label>Username</Form.Label>
@@ -80,11 +77,8 @@ const SignupView = () => {
               onChange={handleChange}
               isInvalid={!!errors.username}
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.username}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">{errors.username}</Form.Control.Feedback>
           </Form.Group>
-
           <Form.Group controlId="formPassword" className="mb-3">
             <Form.Label>Password</Form.Label>
             <Form.Control
@@ -94,11 +88,8 @@ const SignupView = () => {
               onChange={handleChange}
               isInvalid={!!errors.password}
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.password}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
           </Form.Group>
-
           <Form.Group controlId="formEmail" className="mb-3">
             <Form.Label>Email</Form.Label>
             <Form.Control
@@ -108,11 +99,8 @@ const SignupView = () => {
               onChange={handleChange}
               isInvalid={!!errors.email}
             />
-            <Form.Control.Feedback type="invalid">
-              {errors.email}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
           </Form.Group>
-
           <Form.Group controlId="formBirthday" className="mb-3">
             <Form.Label>Birthday</Form.Label>
             <Form.Control
@@ -122,7 +110,6 @@ const SignupView = () => {
               onChange={handleChange}
             />
           </Form.Group>
-
           <div className="d-grid">
             <Button variant="primary" type="submit" disabled={submitting}>
               {submitting ? <Spinner animation="border" size="sm" /> : 'Sign Up'}

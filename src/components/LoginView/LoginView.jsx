@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card, Alert } from 'react-bootstrap';
 
-export function LoginView({ onLogin }) {
+const LoginView = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -9,21 +9,18 @@ export function LoginView({ onLogin }) {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    fetch('https://your-api-url/login', {
+    fetch('https://movie-api-1kah.onrender.com/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ Username: username, Password: password })
+      body: JSON.stringify({ Username: username, Password: password }),
     })
       .then((response) => {
-        if (!response.ok) {
-          throw new Error('Invalid username or password');
-        }
+        if (!response.ok) throw new Error('Invalid username or password');
         return response.json();
       })
       .then((data) => {
         const userData = data.user;
         const token = data.token;
-
         onLogin(userData, token);
       })
       .catch((error) => {
@@ -50,7 +47,6 @@ export function LoginView({ onLogin }) {
                     required
                   />
                 </Form.Group>
-
                 <Form.Group controlId="formPassword" className="mb-3">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
@@ -61,11 +57,8 @@ export function LoginView({ onLogin }) {
                     required
                   />
                 </Form.Group>
-
                 <div className="d-grid">
-                  <Button variant="primary" type="submit">
-                    Login
-                  </Button>
+                  <Button variant="primary" type="submit">Login</Button>
                 </div>
               </Form>
             </Card.Body>
@@ -74,4 +67,6 @@ export function LoginView({ onLogin }) {
       </Row>
     </Container>
   );
-}
+};
+
+export default LoginView;

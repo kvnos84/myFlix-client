@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Form, Button, Card, Row, Col, Container } from 'react-bootstrap';
-import MovieCard from '../movie-card/movie-card';
+import { Form, Button, Card, Row, Col, Container, Spinner, Alert } from 'react-bootstrap';
+import MovieCard from '../MovieCard/MovieCard';
 
-export const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
+const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [formData, setFormData] = useState({
     Username: '',
     Password: '',
     Email: '',
-    Birthday: '',
+    Birthday: ''
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const apiUrl = 'https://movie-api-1kah.onrender.com';
 
   useEffect(() => {
     if (user) {
-      axios.get(`/users/${user.Username}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      axios.get(`${apiUrl}/users/${user.Username}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
       .then(response => {
         setUserInfo(response.data);
@@ -23,10 +27,15 @@ export const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
           Username: response.data.Username,
           Password: '',
           Email: response.data.Email,
-          Birthday: response.data.Birthday ? response.data.Birthday.substring(0,10) : '',
+          Birthday: response.data.Birthday ? response.data.Birthday.substring(0,10) : ''
         });
+        setLoading(false);
       })
-      .catch(e => console.error(e));
+      .catch(e => {
+        console.error(e);
+        setError('Failed to load profile.');
+        setLoading(false);
+      });
     }
   }, [user]);
 
@@ -36,40 +45,58 @@ export const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
 
   const handleUserUpdate = (e) => {
     e.preventDefault();
-
     const updatedData = {
       Username: formData.Username,
       Email: formData.Email,
-      Birthday: formData.Birthday,
+      Birthday: formData.Birthday
     };
-
     if (formData.Password) {
       updatedData.Password = formData.Password;
     }
 
-    axios.put(`/users/${user.Username}`, updatedData, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    axios.put(`${apiUrl}/users/${user.Username}`, updatedData, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
     .then(response => {
       alert('Profile updated successfully!');
       setUserInfo(response.data);
       onUserUpdate(response.data);
     })
-    .catch(e => alert('Update failed.'));
+    .catch(() => {
+      alert('Update failed.');
+    });
   };
 
   const handleUserDelete = () => {
     if (!window.confirm('Are you sure you want to delete your account?')) return;
 
-    axios.delete(`/users/${user.Username}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    axios.delete(`${apiUrl}/users/${user.Username}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
     .then(() => {
       alert('Account deleted.');
       onLogout();
     })
-    .catch(e => alert('Deletion failed.'));
+    .catch(() => {
+      alert('Deletion failed.');
+    });
   };
+
+  if (loading) {
+    return (
+      <Container className="text-center mt-5">
+        <Spinner animation="border" />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="mt-5">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
+    );
+  }
 
   const favoriteMovies = movies.filter(m => userInfo?.FavoriteMovies.includes(m._id));
 
@@ -148,3 +175,5 @@ export const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
     </Container>
   );
 };
+
+export default ProfileView;
