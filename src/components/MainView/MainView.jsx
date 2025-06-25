@@ -4,8 +4,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Row, Col, Card, Button, Container } from 'react-bootstrap';
 
 import { NavigationBar } from '../navigation-bar/navigation-bar';
-import LoginView from '../LoginView/login-view.jsx';
-import SignupView from '../SignupView/signup-view.jsx';
+import LoginView from './components/LoginView/LoginView';
+import SignupView from './components/SignupView/SignupView';
 import MovieView from '../MovieView/movie-view.jsx';
 import ProfileView from '../ProfileView/profile-view.jsx';
 import MovieCard from '../movie-card/movie-card';
