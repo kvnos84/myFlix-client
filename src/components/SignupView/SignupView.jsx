@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
+import { Container, Form, Button, Alert, Card, Spinner } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 const SignupView = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,8 @@ const SignupView = () => {
 
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,7 +30,7 @@ const SignupView = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+    setMessage('');
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -35,6 +38,7 @@ const SignupView = () => {
     }
 
     setErrors({});
+    setSubmitting(true);
 
     fetch('https://movie-api-1kah.onrender.com/users', {
       method: 'POST',
@@ -42,13 +46,17 @@ const SignupView = () => {
       body: JSON.stringify(formData),
     })
       .then(response => {
+        setSubmitting(false);
         if (!response.ok) {
-          throw new Error('Signup failed');
+          return response.json().then(data => {
+            throw new Error(data.message || 'Signup failed');
+          });
         }
         return response.json();
       })
       .then(() => {
-        setMessage('Signup successful! You can now log in.');
+        setMessage('Signup successful! Redirecting to login...');
+        setTimeout(() => navigate('/login'), 2000);
       })
       .catch(error => {
         setMessage(error.message);
@@ -60,7 +68,7 @@ const SignupView = () => {
       <Card className="p-4 shadow-sm">
         <h2 className="mb-4">Sign Up</h2>
 
-        {message && <Alert variant="info">{message}</Alert>}
+        {message && <Alert variant={message.startsWith('Signup successful') ? 'success' : 'danger'}>{message}</Alert>}
 
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="formUsername" className="mb-3">
@@ -115,9 +123,11 @@ const SignupView = () => {
             />
           </Form.Group>
 
-          <Button variant="primary" type="submit">
-            Sign Up
-          </Button>
+          <div className="d-grid">
+            <Button variant="primary" type="submit" disabled={submitting}>
+              {submitting ? <Spinner animation="border" size="sm" /> : 'Sign Up'}
+            </Button>
+          </div>
         </Form>
       </Card>
     </Container>

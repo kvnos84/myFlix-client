@@ -1,18 +1,34 @@
 import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Card, Alert } from 'react-bootstrap';
 
-export function LoginView({ onLoggedIn }) {
+export function LoginView({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Simulated authentication
-    const userData = { Username: username };
-    const token = 'mock-token';
+    fetch('https://your-api-url/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ Username: username, Password: password })
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Invalid username or password');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const userData = data.user;
+        const token = data.token;
 
-    onLoggedIn(userData, token);
+        onLogin(userData, token);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
   };
 
   return (
@@ -22,6 +38,7 @@ export function LoginView({ onLoggedIn }) {
           <Card className="shadow">
             <Card.Body>
               <Card.Title className="mb-4 text-center">Login</Card.Title>
+              {error && <Alert variant="danger">{error}</Alert>}
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formUsername" className="mb-3">
                   <Form.Label>Username</Form.Label>

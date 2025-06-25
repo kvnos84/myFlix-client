@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Row, Col, Card, Button, Container } from 'react-bootstrap';
 
-import { NavigationBar } from '../navigation-bar/navigation-bar';
-import LoginView from './components/LoginView/LoginView';
-import SignupView from './components/SignupView/SignupView';
+import { NavigationBar } from '../NavigationBar/NavigationBar';
+import LoginView from '../LoginView/LoginView';
+import SignupView from '../SignupView/SignupView';
 import MovieView from '../MovieView/movie-view.jsx';
-import ProfileView from '../ProfileView/profile-view.jsx';
+import ProfileView from '../ProfileView/ProfileView';
 import MovieCard from '../movie-card/movie-card';
 
 const MoviesList = ({ movies, user, handleLogout, onUserUpdate }) => {
@@ -59,6 +59,21 @@ const MainView = () => {
   const [user, setUser] = useState(null);
   const [movies, setMovies] = useState([]);
 
+  const fetchMovies = (token) => {
+    fetch('https://your-api-url/movies', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to fetch movies');
+        return response.json();
+      })
+      .then((data) => setMovies(data))
+      .catch((error) => {
+        console.error('Error fetching movies:', error);
+        handleLogout();
+      });
+  };
+
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
@@ -66,19 +81,7 @@ const MainView = () => {
     if (storedToken && storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-
-      fetch('https://your-api-url/movies', {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      })
-        .then((response) => {
-          if (!response.ok) throw new Error('Failed to fetch movies');
-          return response.json();
-        })
-        .then((data) => setMovies(data))
-        .catch((error) => {
-          console.error('Error fetching movies:', error);
-          handleLogout();
-        });
+      fetchMovies(storedToken);
     }
   }, []);
 
@@ -123,16 +126,7 @@ const MainView = () => {
                 setUser(userData);
                 localStorage.setItem('token', userToken);
                 localStorage.setItem('user', JSON.stringify(userData));
-
-                fetch('https://your-api-url/movies', {
-                  headers: { Authorization: `Bearer ${userToken}` },
-                })
-                  .then((response) => {
-                    if (!response.ok) throw new Error('Failed to fetch movies');
-                    return response.json();
-                  })
-                  .then((data) => setMovies(data))
-                  .catch((error) => console.error('Error fetching movies:', error));
+                fetchMovies(userToken);
               }}
             />
           }
