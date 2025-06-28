@@ -9,7 +9,7 @@ const LoginView = ({ onLogin }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    fetch('https://movie-api-1kah.onrender.com/login', {
+    fetch('http://localhost:8080/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ Username: username, Password: password }),
@@ -21,6 +21,7 @@ const LoginView = ({ onLogin }) => {
       .then((data) => {
         const userData = data.user;
         const token = data.token;
+        console.log("✅ Token received from backend:", token);
         onLogin(userData, token);
       })
       .catch((error) => {

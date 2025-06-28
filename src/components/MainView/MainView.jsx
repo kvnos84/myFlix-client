@@ -40,21 +40,29 @@ const MainView = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchMovies = (token) => {
-    setLoading(true);
-    fetch('https://movie-api-1kah.onrender.com/movies', {
-      headers: { Authorization: `Bearer ${token}` },
+  console.log("🎯 Fetching movies with token:", token); // ✅ log the token
+  setLoading(true);
+  fetch('http://localhost:8080/movies', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((response) => {
+      if (!response.ok) {
+        console.error("❌ Server responded with:", response.status, response.statusText);
+        throw new Error('Failed to fetch movies');
+      }
+      return response.json();
     })
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to fetch movies');
-        return response.json();
-      })
-      .then((data) => setMovies(data))
-      .catch((error) => {
-        console.error('Error fetching movies:', error);
-        handleLogout();
-      })
-      .finally(() => setLoading(false));
+    .then((data) => {
+      console.log("✅ Movies fetched:", data);
+      setMovies(data);
+    })
+    .catch((error) => {
+      console.error('🚨 Error fetching movies:', error.message || error);
+      handleLogout();
+    })
+    .finally(() => setLoading(false));
   };
+
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
