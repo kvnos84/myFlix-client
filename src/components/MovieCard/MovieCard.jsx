@@ -1,17 +1,85 @@
 import React from 'react';
-import { Link } from 'react-router-dom';  // Import Link component
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { Button, Card } from 'react-bootstrap';
+import axios from 'axios';
 
-const MovieCard = ({ movie }) => {
+const MovieCard = ({ movie, user, onUserUpdate }) => {
+  const isFavorite = user?.FavoriteMovies?.includes(movie._id);
+
+  const toggleFavorite = () => {
+    const url = `/users/${user.Username}/movies/${movie._id}`;
+    const method = isFavorite ? axios.delete : axios.post;
+
+    method(url, {}, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+    .then(response => {
+      onUserUpdate(response.data);
+    })
+    .catch(error => {
+      console.error('Error updating favorite status:', error);
+      alert('Failed to update favorites.');
+    });
+  };
+
   return (
-    <div className="movie-card">
-      <Link to={`/movie/${movie.title}`}>
-        <img src={movie.posterUrl} alt={movie.title} />
-        <h2>{movie.title}</h2>
-        <p>{movie.genre}</p>
-        <p>{movie.director}</p>
+    <Card className="h-100">
+      <Link to={`/movies/${movie._id}`}>
+        <Card.Img
+          variant="top"
+          src={movie.ImagePath || movie.posterUrl}
+          alt={movie.Title || movie.title}
+          style={{ height: '300px', objectFit: 'cover' }}
+        />
       </Link>
-    </div>
+
+      <Card.Body>
+        <Link to={`/movies/${movie._id}`} className="text-decoration-none text-dark">
+          <Card.Title>{movie.Title || movie.title}</Card.Title>
+          <Card.Text className="mb-1 text-muted">
+            Genre: {movie.Genre?.Name || movie.genre}
+          </Card.Text>
+          <Card.Text className="mb-2 text-muted">
+            Director: {movie.Director?.Name || movie.director}
+          </Card.Text>
+        </Link>
+
+        {user && (
+          <Button
+            variant={isFavorite ? 'danger' : 'primary'}
+            onClick={toggleFavorite}
+            className="w-100 mt-2"
+          >
+            {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
+          </Button>
+        )}
+      </Card.Body>
+    </Card>
   );
+};
+
+MovieCard.propTypes = {
+  movie: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    Title: PropTypes.string,
+    title: PropTypes.string,
+    ImagePath: PropTypes.string,
+    posterUrl: PropTypes.string,
+    Genre: PropTypes.shape({
+      Name: PropTypes.string,
+    }),
+    genre: PropTypes.string,
+    Director: PropTypes.shape({
+      Name: PropTypes.string,
+    }),
+    director: PropTypes.string,
+  }).isRequired,
+  user: PropTypes.shape({
+    Username: PropTypes.string.isRequired,
+    FavoriteMovies: PropTypes.arrayOf(PropTypes.string)
+  }),
+  onUserUpdate: PropTypes.func
 };
 
 export default MovieCard;

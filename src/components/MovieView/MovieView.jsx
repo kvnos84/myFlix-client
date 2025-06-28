@@ -1,61 +1,106 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';  // Import useParams and useNavigate
+import { useParams, Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import axios from 'axios';
+import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 
-const MovieView = () => {
-  const { title } = useParams();  // Extract the movie title from the URL
-  const navigate = useNavigate();  // Get the navigate function
+const MovieView = ({ movies, user, onUserUpdate }) => {
+  const { movieId } = useParams();
+  const movie = movies.find((movie) => movie._id === movieId);
+  const token = localStorage.getItem('token');
 
-  // Here, we would normally fetch movie data from state or an API, but for simplicity, let's assume you have the movie data locally.
-  const movies = [
-    {
-      title: 'The Shawshank Redemption',
-      description: 'Two imprisoned men bond over a number of years...',
-      genre: 'Drama',
-      director: 'Frank Darabont',
-      posterUrl: 'https://path-to-your-poster-image.jpg'  // Replace with a valid image URL
-    },
-    {
-      title: 'The Godfather',
-      description: 'The aging patriarch of an organized crime dynasty...',
-      genre: 'Crime',
-      director: 'Francis Ford Coppola',
-      posterUrl: 'https://path-to-your-poster-image.jpg'  // Replace with a valid image URL
-    },
-    {
-      title: 'The Dark Knight',
-      description: 'When the menace known as The Joker emerges from his mysterious past...',
-      genre: 'Action',
-      director: 'Christopher Nolan',
-      posterUrl: 'https://path-to-your-poster-image.jpg'  // Replace with a valid image URL
-    }
-  ];
+  if (!movie) {
+    return (
+      <Container className="mt-4">
+        <p>Movie not found! Please check the movie ID or go back to the main page.</p>
+      </Container>
+    );
+  }
 
-  // Find the movie based on the title from the URL
-  const movie = movies.find((movie) => movie.title === title);
+  const isFavorite = user?.FavoriteMovies.includes(movie._id);
 
-  // Navigate back to the main view
-  const handleBackClick = () => {
-    navigate('/');  // Navigate to the root URL (MainView)
+  const toggleFavorite = () => {
+    const url = `/users/${user.Username}/movies/${movie._id}`;
+    const config = { headers: { Authorization: `Bearer ${token}` } };
+
+    const request = isFavorite
+      ? axios.delete(url, config)
+      : axios.post(url, {}, config);
+
+    request
+      .then((response) => {
+        alert(isFavorite ? 'Removed from favorites.' : 'Added to favorites.');
+        onUserUpdate(response.data);
+      })
+      .catch(() => {
+        alert('Failed to update favorite status.');
+      });
   };
 
   return (
-    <div className="movie-view">
-      {movie ? (
-        <>
-          <h1>{movie.title}</h1>
-          <img src={movie.posterUrl} alt={movie.title} />
-          <p>{movie.description}</p>
-          <h3>Genre: {movie.genre}</h3>
-          <h3>Director: {movie.director}</h3>
+    <Container className="mt-4">
+      <Row className="justify-content-center">
+        <Col md={8}>
+          <Card className="shadow-sm">
+            <Card.Img
+              variant="top"
+              src={movie.ImagePath || movie.posterUrl}
+              alt={movie.Title || movie.title}
+              style={{ maxHeight: '500px', objectFit: 'cover' }}
+            />
+            <Card.Body>
+              <Card.Title>{movie.Title || movie.title}</Card.Title>
+              <Card.Text>{movie.Description || movie.description}</Card.Text>
+              <Card.Text>
+                <strong>Genre:</strong>{' '}
+                {(movie.Genre && movie.Genre.Name) || movie.genre}
+              </Card.Text>
+              <Card.Text>
+                <strong>Director:</strong>{' '}
+                {(movie.Director && movie.Director.Name) || movie.director}
+              </Card.Text>
 
-          {/* Back Button */}
-          <button onClick={handleBackClick}>Back to Movies</button>
-        </>
-      ) : (
-        <p>Movie not found! Please check the movie title or go back to the main page.</p>
-      )}
-    </div>
+              <Button
+                variant={isFavorite ? 'danger' : 'primary'}
+                onClick={toggleFavorite}
+                className="me-2 mb-2"
+              >
+                {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
+              </Button>
+
+              <Button variant="secondary" as={Link} to="/">
+                Back to Movies
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
+};
+
+MovieView.propTypes = {
+  movies: PropTypes.arrayOf(
+    PropTypes.shape({
+      _id: PropTypes.string.isRequired,
+      Title: PropTypes.string,
+      title: PropTypes.string,
+      ImagePath: PropTypes.string,
+      posterUrl: PropTypes.string,
+      Description: PropTypes.string,
+      description: PropTypes.string,
+      Genre: PropTypes.shape({
+        Name: PropTypes.string,
+      }),
+      genre: PropTypes.string,
+      Director: PropTypes.shape({
+        Name: PropTypes.string,
+      }),
+      director: PropTypes.string,
+    })
+  ).isRequired,
+  user: PropTypes.object.isRequired,
+  onUserUpdate: PropTypes.func.isRequired
 };
 
 export default MovieView;
