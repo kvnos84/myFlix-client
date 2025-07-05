@@ -7,6 +7,7 @@ import MovieView from '../MovieView/MovieView';
 import ProfileView from '../ProfileView/ProfileView';
 import MovieCard from '../MovieCard/MovieCard';
 import { Container, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
+import { apiUrl } from '../../../env';
 
 const MoviesList = ({ movies, user, handleLogout, onUserUpdate }) => {
   return (
@@ -42,7 +43,7 @@ const MainView = () => {
   const fetchMovies = (token) => {
   console.log("🎯 Fetching movies with token:", token); // ✅ log the token
   setLoading(true);
-  fetch('http://localhost:8080/movies', {
+  fetch(`${apiUrl}/movies`, {
     headers: { Authorization: `Bearer ${token}` },
   })
     .then((response) => {

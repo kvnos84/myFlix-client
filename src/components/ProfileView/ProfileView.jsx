@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form, Button, Card, Row, Col, Container, Spinner, Alert } from 'react-bootstrap';
 import MovieCard from '../MovieCard/MovieCard';
+import { apiUrl } from '../../../env'; // ✅ Corrected path
 
 const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
   const [userInfo, setUserInfo] = useState(null);
@@ -14,7 +15,7 @@ const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const apiUrl = 'https://movie-api-1kah.onrender.com';
+  /* const apiUrl = 'https://movie-api-jyp7.onrender.com'; // <-- this is your deployed backend*/
 
   useEffect(() => {
     if (user) {
