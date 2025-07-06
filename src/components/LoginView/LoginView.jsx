@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Card, Alert } from 'react-bootstrap';
+import api from '../../api'; // using centralized axios instance
 
 const LoginView = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -9,24 +10,16 @@ const LoginView = ({ onLogin }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    /* fetch('http://localhost:8080/login', { */
-    fetch('https://movie-api-jyp7.onrender.com/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ Username: username, Password: password }),
-    })
+    api.post('/login', { Username: username, Password: password })
       .then((response) => {
-        if (!response.ok) throw new Error('Invalid username or password');
-        return response.json();
-      })
-      .then((data) => {
-        const userData = data.user;
-        const token = data.token;
-        console.log("✅ Token received from backend:", token);
+        const userData = response.data.user;
+        const token = response.data.token;
+        console.log('✅ Token received from backend:', token);
         onLogin(userData, token);
       })
       .catch((error) => {
-        setError(error.message);
+        console.error('Login error:', error);
+        setError('Invalid username or password');
       });
   };
 

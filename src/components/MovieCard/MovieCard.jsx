@@ -2,25 +2,29 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, Card } from 'react-bootstrap';
-import axios from 'axios';
+import api from '../../api';
 
 const MovieCard = ({ movie, user, onUserUpdate }) => {
   const isFavorite = user?.FavoriteMovies?.includes(movie._id);
 
   const toggleFavorite = () => {
     const url = `/users/${user.Username}/movies/${movie._id}`;
-    const method = isFavorite ? axios.delete : axios.post;
-
-    method(url, {}, {
+    const config = {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    })
-    .then(response => {
-      onUserUpdate(response.data);
-    })
-    .catch(error => {
-      console.error('Error updating favorite status:', error);
-      alert('Failed to update favorites.');
-    });
+    };
+
+    const request = isFavorite
+      ? api.delete(url, config)
+      : api.post(url, {}, config);
+
+    request
+      .then((response) => {
+        onUserUpdate(response.data);
+      })
+      .catch((error) => {
+        console.error('Error updating favorite status:', error);
+        alert('Failed to update favorites.');
+      });
   };
 
   return (

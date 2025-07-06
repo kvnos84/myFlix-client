@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import api from '../../api';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 
 const MovieView = ({ movies, user, onUserUpdate }) => {
@@ -24,15 +24,16 @@ const MovieView = ({ movies, user, onUserUpdate }) => {
     const config = { headers: { Authorization: `Bearer ${token}` } };
 
     const request = isFavorite
-      ? axios.delete(url, config)
-      : axios.post(url, {}, config);
+      ? api.delete(url, config)
+      : api.post(url, {}, config);
 
     request
       .then((response) => {
         alert(isFavorite ? 'Removed from favorites.' : 'Added to favorites.');
         onUserUpdate(response.data);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Error updating favorite status:', error);
         alert('Failed to update favorite status.');
       });
   };
@@ -60,13 +61,15 @@ const MovieView = ({ movies, user, onUserUpdate }) => {
                 {(movie.Director && movie.Director.Name) || movie.director}
               </Card.Text>
 
-              <Button
-                variant={isFavorite ? 'danger' : 'primary'}
-                onClick={toggleFavorite}
-                className="me-2 mb-2"
-              >
-                {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
-              </Button>
+              {user && (
+                <Button
+                  variant={isFavorite ? 'danger' : 'primary'}
+                  onClick={toggleFavorite}
+                  className="me-2 mb-2"
+                >
+                  {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
+                </Button>
+              )}
 
               <Button variant="secondary" as={Link} to="/">
                 Back to Movies

@@ -6,6 +6,7 @@ import SignupView from '../SignupView/SignupView';
 import MovieView from '../MovieView/MovieView';
 import ProfileView from '../ProfileView/ProfileView';
 import MovieCard from '../MovieCard/MovieCard';
+import WelcomeView from '../WelcomeView/WelcomeView';
 import { Container, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
 import { apiUrl } from '../../../env';
 
@@ -89,23 +90,24 @@ const MainView = () => {
   };
 
   if (!user) {
-    return (
-      <Routes>
-        <Route path="/login" element={
-          <LoginView
-            onLogin={(userData, userToken) => {
-              setUser(userData);
-              localStorage.setItem('token', userToken);
-              localStorage.setItem('user', JSON.stringify(userData));
-              fetchMovies(userToken);
-            }}
-          />
-        } />
-        <Route path="/signup" element={<SignupView />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    );
-  }
+  return (
+    <Routes>
+      <Route path="/login" element={
+        <LoginView
+          onLogin={(userData, userToken) => {
+            setUser(userData);
+            localStorage.setItem('token', userToken);
+            localStorage.setItem('user', JSON.stringify(userData));
+            fetchMovies(userToken);
+          }}
+        />
+      } />
+      <Route path="/signup" element={<SignupView />} />
+      <Route path="/welcome" element={<WelcomeView />} />
+      <Route path="*" element={<Navigate to="/welcome" replace />} />
+    </Routes>
+  );
+}
 
   if (loading || movies.length === 0) {
     return (

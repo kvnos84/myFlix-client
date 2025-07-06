@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api';
 import { Form, Button, Card, Row, Col, Container, Spinner, Alert } from 'react-bootstrap';
 import MovieCard from '../MovieCard/MovieCard';
-import { apiUrl } from '../../../env'; // ✅ Corrected path
 
 const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
   const [userInfo, setUserInfo] = useState(null);
@@ -15,11 +14,9 @@ const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  /* const apiUrl = 'https://movie-api-jyp7.onrender.com'; // <-- this is your deployed backend*/
-
   useEffect(() => {
     if (user) {
-      axios.get(`${apiUrl}/users/${user.Username}`, {
+      api.get(`/users/${user.Username}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       })
       .then(response => {
@@ -28,7 +25,7 @@ const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
           Username: response.data.Username,
           Password: '',
           Email: response.data.Email,
-          Birthday: response.data.Birthday ? response.data.Birthday.substring(0,10) : ''
+          Birthday: response.data.Birthday ? response.data.Birthday.substring(0, 10) : ''
         });
         setLoading(false);
       })
@@ -55,7 +52,7 @@ const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
       updatedData.Password = formData.Password;
     }
 
-    axios.put(`${apiUrl}/users/${user.Username}`, updatedData, {
+    api.put(`/users/${user.Username}`, updatedData, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
     .then(response => {
@@ -71,7 +68,7 @@ const ProfileView = ({ user, movies, onUserUpdate, onLogout }) => {
   const handleUserDelete = () => {
     if (!window.confirm('Are you sure you want to delete your account?')) return;
 
-    axios.delete(`${apiUrl}/users/${user.Username}`, {
+    api.delete(`/users/${user.Username}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     })
     .then(() => {
