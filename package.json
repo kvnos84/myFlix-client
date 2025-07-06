@@ -4,15 +4,17 @@
   "description": "MyFlix React client app",
   "author": "Your Name",
   "license": "ISC",
+  "homepage": "https://kvnflix.netlify.app",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html"
+    "build": "parcel build index.html",
+    "test": "react-scripts test"
   },
   "dependencies": {
     "axios": "^1.6.0",
     "bootstrap": "^5.3.7",
     "cors": "^2.8.5",
-    "parcel": "^2.15.2",
+    "dotenv": "^17.0.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^18.2.0",
@@ -22,6 +24,7 @@
     "@parcel/packager-raw-url": "^2.15.4",
     "@parcel/transformer-sass": "^2.14.4",
     "@parcel/transformer-webmanifest": "^2.15.4",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "parcel": "^2.15.4"
   }
 }
