@@ -1,3 +1,4 @@
+import api from '../api';
 import React, { useState } from 'react';
 import { Container, Form, Button, Alert, Card, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -28,39 +29,29 @@ const SignupView = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setMessage('');
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+  e.preventDefault();
+  setMessage('');
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
 
-    setErrors({});
-    setSubmitting(true);
+  setErrors({});
+  setSubmitting(true);
 
-    fetch('https://movie-api-1kah.onrender.com/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+  api.post('/users', formData)
+    .then(response => {
+      setMessage('Signup successful! Please log in.');
+      setSubmitting(false);
+      setTimeout(() => navigate('/login'), 1500);
     })
-      .then(response => {
-        setSubmitting(false);
-        if (!response.ok) {
-          return response.json().then(data => {
-            throw new Error(data.message || 'Signup failed');
-          });
-        }
-        return response.json();
-      })
-      .then(() => {
-        setMessage('Signup successful! Redirecting to login...');
-        setTimeout(() => navigate('/login'), 2000);
-      })
-      .catch(error => {
-        setMessage(error.message);
-      });
-  };
+    .catch(error => {
+      console.error('Signup error:', error);
+      setMessage('Signup failed. Please try again.');
+      setSubmitting(false);
+    });
+};
 
   return (
     <Container className="mt-4">
