@@ -1,4 +1,4 @@
-import api from '../api';
+import api from '../../api';
 import React, { useState } from 'react';
 import { Container, Form, Button, Alert, Card, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
