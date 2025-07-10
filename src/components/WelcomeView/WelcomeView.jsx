@@ -9,7 +9,7 @@ const WelcomeView = () => (
     <p>Sign up or log in to get started.</p>
     <div className="d-flex justify-content-center gap-3 mt-3">
       <Link to="/login"><Button variant="primary">Login</Button></Link>
-      <Link to="/signup"><Button variant="secondary">Sign Up</Button></Link>
+      <Link to="/signup"><Button variant="primary">Sign Up</Button></Link>
     </div>
   </Container>
 );
