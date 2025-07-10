@@ -40,7 +40,15 @@ const SignupView = () => {
   setErrors({});
   setSubmitting(true);
 
-  api.post('/users', formData)
+  // 🔧 Create payload with capitalized keys
+  const payload = {
+    Username: formData.username,
+    Password: formData.password,
+    Email: formData.email,
+    Birthday: new Date(formData.birthday).toISOString().split('T')[0] // format to 'YYYY-MM-DD'
+  };
+
+  api.post('/users', payload)
     .then(response => {
       setMessage('Signup successful! Please log in.');
       setSubmitting(false);
