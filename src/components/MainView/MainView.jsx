@@ -11,18 +11,77 @@ import { Container, Row, Col, Card, Button, Spinner } from 'react-bootstrap';
 import { apiUrl } from '../../../env';
 
 const MoviesList = ({ movies, user, handleLogout, onUserUpdate }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOption, setSortOption] = useState('');
+  const [genreFilter, setGenreFilter] = useState('');
+
+  const filteredMovies = movies
+    .filter((movie) => {
+      const title = movie.Title?.toLowerCase() || '';
+      const genre = movie.Genre?.Name?.toLowerCase() || '';
+      return (
+        title.includes(searchTerm.toLowerCase()) &&
+        (genreFilter ? genre === genreFilter.toLowerCase() : true)
+      );
+    })
+    .sort((a, b) => {
+      if (sortOption === 'a-z') return a.Title.localeCompare(b.Title);
+      if (sortOption === 'z-a') return b.Title.localeCompare(a.Title);
+      return 0;
+    });
+
+  const uniqueGenres = [...new Set(movies.map(m => m.Genre?.Name).filter(Boolean))];
+
   return (
     <Container className="mt-5">
-      <Row className="mb-4">
+      <Row className="mb-4 align-items-center">
         <Col>
-          <h2 className="mb-3">Welcome to myFlix, {user.Username}!</h2>
-          <Button variant="outline-danger" onClick={handleLogout}>
-            Logout
-          </Button>
+          <h2 className="mb-3">Welcome to myFlix{user?.Username ? `, ${user.Username}` : ''}!</h2>
+        </Col>
+        <Col className="text-end">
+          <Button variant="outline-danger" onClick={handleLogout}>Logout</Button>
         </Col>
       </Row>
+
+      <Row className="mb-3">
+        <Col md={4}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Col>
+
+        <Col md={4}>
+          <select
+            className="form-select"
+            value={genreFilter}
+            onChange={(e) => setGenreFilter(e.target.value)}
+          >
+            <option value="">All Genres</option>
+            {uniqueGenres.map((genre) => (
+              <option key={genre} value={genre}>{genre}</option>
+            ))}
+          </select>
+        </Col>
+
+        <Col md={4}>
+          <select
+            className="form-select"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="">No Sorting</option>
+            <option value="a-z">Sort A–Z</option>
+            <option value="z-a">Sort Z–A</option>
+          </select>
+        </Col>
+      </Row>
+
       <Row>
-        {movies.map((movie) => (
+        {filteredMovies.map((movie) => (
           <Col key={movie._id} xs={12} sm={6} md={4} lg={3} className="mb-4">
             <Card className="h-100 shadow-sm">
               <Card.Body className="p-2">

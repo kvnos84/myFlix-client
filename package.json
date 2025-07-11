@@ -2,7 +2,7 @@
   "name": "myflix-client",
   "version": "1.0.0",
   "description": "MyFlix React client app",
-  "author": "Your Name",
+  "author": "Kevin O'Shea",
   "license": "ISC",
   "homepage": "https://kvnflix.netlify.app",
   "scripts": {
